@@ -18,10 +18,11 @@ on:
 env:
   # ACR Login Server (e.g., myregistry.azurecr.io)
   # This needs to be set as a GitHub Repository Secret
-  ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+    ACR_LOGIN_SERVER: ${{ secrets.week07.azurecr.io }}
+    ACR_NAME: ${{ secrets.week07 }}  
   # Dynamically generate image tags based on Git SHA and GitHub Run ID
   # This provides unique, traceable tags for each image build
-  IMAGE_TAG: ${{ github.sha }}-${{ github.run_id }}
+    IMAGE_TAG: ${{ github.sha }}-${{ github.run_id }}
 
 jobs:
   build_and_push_frontend:
