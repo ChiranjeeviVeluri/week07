@@ -8,15 +8,10 @@ on:
       - "backend/**"
       - ".github/workflows/backend_ci.yml"
 
-env:
-  # <-- these MUST exist in repo Settings → Secrets and variables → Actions
-  ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}   # e.g. sit722acr25155.azurecr.io
-  ACR_NAME:         ${{ secrets.ACR_NAME }}           # e.g. sit722acr25155
-  IMAGE_TAG:        ${{ github.sha }}-${{ github.run_id }}
-
 jobs:
   test_and_lint_backends:
     runs-on: ubuntu-latest
+
     services:
       product_db:
         image: postgres:15
@@ -29,7 +24,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports: ["5432:5432"]
+        ports: [ "5432:5432" ]
 
       order_db:
         image: postgres:15
@@ -42,7 +37,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports: ["5433:5432"]
+        ports: [ "5433:5432" ]
 
     steps:
       - name: Checkout repository
@@ -85,6 +80,12 @@ jobs:
   build_and_push_images:
     needs: test_and_lint_backends
     runs-on: ubuntu-latest
+
+    # map secrets to env at JOB scope
+    env:
+      ACR_NAME: ${{ secrets.ACR_NAME }}                 # e.g. sit722acr25155
+      ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }} # e.g. sit722acr25155.azurecr.io
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -101,7 +102,7 @@ jobs:
           echo "ACR_LOGIN_SERVER=$ACR_LOGIN_SERVER"
           test -n "$ACR_NAME" && test -n "$ACR_LOGIN_SERVER"
 
-      # IMPORTANT: --name expects the REGISTRY NAME (not the FQDN)
+      # --name expects the REGISTRY NAME (not FQDN)
       - name: Login to Azure Container Registry
         run: az acr login --name "$ACR_NAME"
 
